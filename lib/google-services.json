@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "618844286589",
+    "project_id": "zabgo-7cea5",
+    "storage_bucket": "zabgo-7cea5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:618844286589:android:a6cb2efa4c4c58aef88b14",
+        "android_client_info": {
+          "package_name": "com.example.zabgo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "618844286589-re2v0sbpotfl2mshl2l9e55nn3gvsc0r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOtIfhLwKuI_jDF-hshyCH73J4PE9CV4E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "618844286589-re2v0sbpotfl2mshl2l9e55nn3gvsc0r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,7 @@
+flutter_native_splash:
+  color: "#FFFFFF"  # ya jo background color tu chahe
+  image: assets/images/Splash_logo.png # jo file tune banai hai
+
+  android_12:
+    image: assets/images/Splash_logo.png
+    color: "#FFFFFF"
