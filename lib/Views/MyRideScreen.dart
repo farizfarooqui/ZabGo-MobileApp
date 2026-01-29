@@ -7,6 +7,7 @@ import 'package:demo/Utils/Constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class MyRidesScreen extends StatelessWidget {
   const MyRidesScreen({super.key});
@@ -176,8 +177,24 @@ class MyRidesScreen extends StatelessWidget {
   }
 
   Widget _buildOfferedRides(MyRidesController controller) {
-    return RefreshIndicator(
-      onRefresh: controller.fetchMyRides,
+    final RefreshController refreshController =
+        RefreshController(initialRefresh: false);
+
+    void _onRefresh() async {
+      await controller.fetchMyRides();
+      refreshController.refreshCompleted();
+    }
+
+    return SmartRefresher(
+      controller: refreshController,
+      enablePullDown: true,
+      enablePullUp: false,
+      onRefresh: _onRefresh,
+      header: const WaterDropHeader(
+              waterDropColor: colorSecondary,
+              idleIcon:
+                  Icon(Icons.autorenew_rounded, size: 16, color: Colors.white),
+            ),
       child: Obx(() {
         if (controller.myOfferedRides.isEmpty) {
           return const Center(
@@ -293,8 +310,24 @@ class MyRidesScreen extends StatelessWidget {
   }
 
   Widget _buildJoinedRides(MyRidesController controller) {
-    return RefreshIndicator(
-      onRefresh: controller.fetchMyJoinedRides,
+    final RefreshController refreshController =
+        RefreshController(initialRefresh: false);
+
+    void _onRefresh() async {
+      await controller.fetchMyJoinedRides();
+      refreshController.refreshCompleted();
+    }
+
+    return SmartRefresher(
+      controller: refreshController,
+      enablePullDown: true,
+      enablePullUp: false,
+      onRefresh: _onRefresh,
+      header: const WaterDropHeader(
+              waterDropColor: colorSecondary,
+              idleIcon:
+                  Icon(Icons.autorenew_rounded, size: 16, color: Colors.white),
+            ),
       child: Obx(() {
         if (controller.myJoinedRides.isEmpty) {
           return const Center(
@@ -337,48 +370,43 @@ class MyRidesScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Column(
-                children: [
-                  ListTile(
-                    leading: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(Icons.event_seat, color: Colors.blue),
-                    ),
-                    title: Text(
-                      "${ride['pickup_name']} → ${ride['dropoff_name']}",
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("${formatDateTime(ride['departure_time'])}"),
-                        Text("Rs.${ride['fare_price']} • ${ride['ride_name']}"),
-                      ],
-                    ),
-                    trailing: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        "Seat${mySeats.length > 1 ? 's' : ''} ${mySeats.join(', ')}",
-                        style: const TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                    onTap: () =>
-                        Get.to(() => RideDetailScreen(rideId: ride['id'])),
+              child: ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                ],
+                  child: const Icon(Icons.event_seat, color: Colors.blue),
+                ),
+                title: Text(
+                  "${ride['pickup_name']} → ${ride['dropoff_name']}",
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("${formatDateTime(ride['departure_time'])}"),
+                    Text("Rs.${ride['fare_price']} • ${ride['ride_name']}"),
+                  ],
+                ),
+                trailing: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    "Seat${mySeats.length > 1 ? 's' : ''} ${mySeats.join(', ')}",
+                    style: const TextStyle(
+                      color: Colors.green,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                onTap: () => Get.to(() => RideDetailScreen(rideId: ride['id'])),
               ),
             );
           },
@@ -388,8 +416,24 @@ class MyRidesScreen extends StatelessWidget {
   }
 
   Widget _buildRideRequests(MyRidesController controller) {
-    return RefreshIndicator(
-      onRefresh: controller.fetchAllRideRequests,
+    final RefreshController refreshController =
+        RefreshController(initialRefresh: false);
+
+    void _onRefresh() async {
+      await controller.fetchAllRideRequests();
+      refreshController.refreshCompleted();
+    }
+
+    return SmartRefresher(
+      controller: refreshController,
+      enablePullDown: true,
+      enablePullUp: false,
+      onRefresh: _onRefresh,
+      header: const WaterDropHeader(
+              waterDropColor: colorSecondary,
+              idleIcon:
+                  Icon(Icons.autorenew_rounded, size: 16, color: Colors.white),
+            ),
       child: Obx(() {
         if (controller.allRideRequests.isEmpty) {
           return const Center(
@@ -422,7 +466,6 @@ class MyRidesScreen extends StatelessWidget {
             final seatNumbers =
                 List<String>.from(request['seat_numbers'] ?? []);
 
-            // Skip if essential data is missing
             if (userData == null || rideData == null) {
               return const SizedBox.shrink();
             }
@@ -447,57 +490,42 @@ class MyRidesScreen extends StatelessWidget {
                   // Passenger Info Header
                   Row(
                     children: [
-                      GestureDetector(
-                        onTap: () {
-                          // Navigate to ProfileScreen with user data
-                          // Get.to(() => ProfileScreen(), arguments: userData);
-                        },
-                        child: CircleAvatar(
-                          backgroundColor: colorSecondary,
-                          child: Text(
-                            (userData['name'] ?? 'U')[0].toUpperCase(),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      CircleAvatar(
+                        backgroundColor: colorSecondary,
+                        child: Text(
+                          (userData['name'] ?? 'U')[0].toUpperCase(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            // Navigate to ProfileScreen with user data
-                            // Get.to(() => ProfileScreen(), arguments: userData);
-                          },
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                userData['name'] ?? 'Unknown User',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
-                                ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              userData['name'] ?? 'Unknown User',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
                               ),
-                              Text(
-                                "${userData['department'] ?? 'Unknown'} • Year ${userData['year'] ?? 'N/A'}",
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
+                            ),
+                            Text(
+                              "${userData['department'] ?? 'Unknown'} • Year ${userData['year'] ?? 'N/A'}",
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                       IconButton(
                         onPressed: () {
-                          // Register ChatController first
                           Get.put(ChatController());
-
-                          // Then navigate
                           Get.to(() => ChatScreen(chatUser: userData));
                         },
                         icon: const Icon(Icons.chat_bubble_outline),
@@ -525,8 +553,6 @@ class MyRidesScreen extends StatelessWidget {
                   ),
 
                   const SizedBox(height: 12),
-
-                  // Requested Seats
                   Row(
                     children: [
                       const Icon(Icons.event_seat,
@@ -539,7 +565,6 @@ class MyRidesScreen extends StatelessWidget {
                     ],
                   ),
 
-                  // Message (if provided)
                   if (request['message'] != null &&
                       request['message'].toString().isNotEmpty) ...[
                     const SizedBox(height: 8),

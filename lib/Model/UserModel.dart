@@ -34,6 +34,7 @@ class UserModel {
   Map<String, dynamic> toJson() => {
         'id': id,
         'name': name,
+        "front_id_url": front_id_url,
         'gender': gender,
         'number': number,
         'student_id': studentId,

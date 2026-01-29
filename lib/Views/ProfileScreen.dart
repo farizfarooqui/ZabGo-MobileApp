@@ -84,7 +84,9 @@ class ProfileScreen extends StatelessWidget {
             : controller.currentUser.value?.toJson() ?? {};
 
         if (user.isEmpty) {
-          return const Center(child: SmallLoader());
+          return const Center(child: SmallLoader(
+            color: colorSecondary,
+          ));
         }
 
         final displayName = user['name'] ?? 'Unknown';

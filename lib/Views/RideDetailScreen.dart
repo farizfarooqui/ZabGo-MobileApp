@@ -5,6 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import 'package:demo/Utils/Constants.dart';
 import 'package:demo/Controllers/RideDetailController.dart';
+import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -344,7 +345,8 @@ class RideDetailScreen extends StatelessWidget {
                   maxLines: 3,
                   decoration: InputDecoration(
                     hintText: "Any special requests or information...",
-                    hintStyle: const TextStyle(color: Colors.grey, fontSize: 13),
+                    hintStyle:
+                        const TextStyle(color: Colors.grey, fontSize: 13),
                     filled: true,
                     fillColor: Colors.grey.shade100,
                     contentPadding: const EdgeInsets.all(14),
@@ -388,71 +390,40 @@ class RideDetailScreen extends StatelessWidget {
                             colorText: Colors.white);
                         return;
                       }
+
+                      if (controller.messageController.text.trim().isEmpty) {
+                        Get.snackbar("Message Required",
+                            "Please type a message before sending request.",
+                            snackPosition: SnackPosition.BOTTOM,
+                            backgroundColor:
+                                Colors.orangeAccent.withOpacity(0.8),
+                            colorText: Colors.white);
+                        return;
+                      }
+
                       await showDialog<String>(
                         context: context,
                         builder: (context) => AlertDialog(
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          backgroundColor: Colors.white,
-                          titlePadding:
-                              const EdgeInsets.fromLTRB(24, 20, 24, 10),
-                          contentPadding:
-                              const EdgeInsets.fromLTRB(24, 10, 24, 20),
-                          actionsPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 10),
-                          title: const Row(
-                            children: [
-                              Icon(Icons.event_seat,
-                                  color: colorSecondary, size: 26),
-                              SizedBox(width: 8),
-                              Text(
-                                "Send Seat Request",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-                          content: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                  "Selected seat(s) no: ${controller.selectedSeats.join(', ')}\n"),
-                            ],
+                          title: const Text("Send Seat Request"),
+                          content: Text(
+                            "Selected seat(s): ${controller.selectedSeats.join(', ')}\n\nMessage:\n${controller.messageController.text}",
                           ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, null),
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.grey[600],
-                              ),
                               child: const Text(
                                 "Cancel",
-                                style: TextStyle(color: greyLightColor),
+                                style: TextStyle(color: Colors.grey),
                               ),
                             ),
                             ElevatedButton(
                               onPressed: () => Navigator.pop(context),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: colorSecondary,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
-                              ),
                               child: const Text(
-                                "Send Request",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 15,
-                                ),
+                                "Send",
+                                style: TextStyle(color: colorSecondary),
                               ),
                             ),
                           ],
@@ -521,8 +492,8 @@ class RideDetailScreen extends StatelessWidget {
                               builder: (_) => AlertDialog(
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16)),
-                                title: Row(
-                                  children: const [
+                                title: const Row(
+                                  children: [
                                     Icon(Icons.warning_rounded,
                                         color: Colors.redAccent, size: 26),
                                     SizedBox(width: 10),

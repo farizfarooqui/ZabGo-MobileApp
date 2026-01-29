@@ -1,8 +1,10 @@
 import 'package:demo/Controllers/ChatController.dart';
 import 'package:demo/Utils/Constants.dart';
+import 'package:demo/Widgets/FancyChatLoader.dart';
 import 'package:demo/Widgets/SmallLoader.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -16,6 +18,8 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController msgController = TextEditingController();
   final ScrollController scrollController = ScrollController();
+  final RefreshController refreshController =
+      RefreshController(initialRefresh: false);
   late final ChatController chatController;
   late final String currentUserId;
 
@@ -28,6 +32,16 @@ class _ChatScreenState extends State<ChatScreen> {
       chatController.fetchMessages(widget.chatUser['id']);
     });
     _listenToNewMessages();
+  }
+
+  void _onRefresh() async {
+    await chatController.fetchMessages(widget.chatUser['id']);
+    refreshController.refreshCompleted();
+    _scrollToBottom();
+  }
+
+  void _onLoading() async {
+    refreshController.loadComplete();
   }
 
   void _listenToNewMessages() {
@@ -138,7 +152,8 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: Obx(() {
               if (chatController.isLoading.value) {
-                return const Center(child: SmallLoader(color: colorSecondary));
+                return const Center(
+                    child: SmallLoader(color: colorSecondary));
               }
 
               if (chatController.messages.isEmpty) {
@@ -163,65 +178,76 @@ class _ChatScreenState extends State<ChatScreen> {
                 );
               }
 
-              return ListView.builder(
-                controller: scrollController,
-                padding: const EdgeInsets.all(16),
-                itemCount: chatController.messages.length,
-                itemBuilder: (context, index) {
-                  final message = chatController.messages[index];
-                  final isMe = message['sender_id'] == currentUserId;
-                  final content = message['content'] ?? '';
-                  final timestamp = message['created_at'] ?? '';
+              return SmartRefresher(
+                header: const WaterDropHeader(
+                  waterDropColor: colorSecondary,
+                  idleIcon: Icon(Icons.autorenew_rounded,
+                      size: 16, color: Colors.white),
+                ),
+                controller: refreshController,
+                enablePullDown: true,
+                enablePullUp: false,
+                onRefresh: _onRefresh,
+                child: ListView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: chatController.messages.length,
+                  itemBuilder: (context, index) {
+                    final message = chatController.messages[index];
+                    final isMe = message['sender_id'] == currentUserId;
+                    final content = message['content'] ?? '';
+                    final timestamp = message['created_at'] ?? '';
 
-                  return Align(
-                    alignment:
-                        isMe ? Alignment.centerRight : Alignment.centerLeft,
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 14),
-                      constraints: BoxConstraints(
-                        maxWidth: MediaQuery.of(context).size.width * 0.7,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isMe ? colorSecondary : Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: const Radius.circular(16),
-                          topRight: const Radius.circular(16),
-                          bottomLeft: Radius.circular(isMe ? 16 : 4),
-                          bottomRight: Radius.circular(isMe ? 4 : 16),
+                    return Align(
+                      alignment:
+                          isMe ? Alignment.centerRight : Alignment.centerLeft,
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 14),
+                        constraints: BoxConstraints(
+                          maxWidth: MediaQuery.of(context).size.width * 0.7,
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.shade300,
-                            blurRadius: 3,
-                            offset: const Offset(0, 1),
+                        decoration: BoxDecoration(
+                          color: isMe ? colorSecondary : Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: const Radius.circular(16),
+                            topRight: const Radius.circular(16),
+                            bottomLeft: Radius.circular(isMe ? 16 : 4),
+                            bottomRight: Radius.circular(isMe ? 4 : 16),
                           ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            content,
-                            style: TextStyle(
-                              color: isMe ? Colors.white : Colors.black87,
-                              fontSize: 15,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.shade300,
+                              blurRadius: 3,
+                              offset: const Offset(0, 1),
                             ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            formatMessageTime(timestamp),
-                            style: TextStyle(
-                              color: isMe ? Colors.white70 : Colors.grey,
-                              fontSize: 11,
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              content,
+                              style: TextStyle(
+                                color: isMe ? Colors.white : Colors.black87,
+                                fontSize: 15,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(
+                              formatMessageTime(timestamp),
+                              style: TextStyle(
+                                color: isMe ? Colors.white70 : Colors.grey,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               );
             }),
           ),
@@ -279,6 +305,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    refreshController.dispose();
     msgController.dispose();
     scrollController.dispose();
     super.dispose();

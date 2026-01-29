@@ -4,6 +4,7 @@ import 'package:demo/Widgets/SmallLoader.dart';
 import 'package:flutter/material.dart';
 import 'ChatScreen.dart';
 import 'package:get/get.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class ChatListScreen extends StatelessWidget {
   const ChatListScreen({super.key});
@@ -11,6 +12,13 @@ class ChatListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ChatController chatController = Get.put(ChatController());
+    final RefreshController refreshController =
+        RefreshController(initialRefresh: false);
+
+    void _onRefresh() async {
+      await chatController.fetchChatList();
+      refreshController.refreshCompleted();
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
@@ -49,8 +57,15 @@ class ChatListScreen extends StatelessWidget {
           );
         }
 
-        return RefreshIndicator(
-          onRefresh: chatController.fetchChatList,
+        return SmartRefresher(
+          controller: refreshController,
+          enablePullDown: true,
+          enablePullUp: false,
+          onRefresh: _onRefresh,
+          header: const WaterDropHeader(
+            complete: Icon(Icons.check, color: colorSecondary),
+            waterDropColor: colorSecondary,
+          ),
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: chatController.chatList.length,
@@ -86,9 +101,7 @@ class ChatListScreen extends StatelessWidget {
                     ),
                   ),
                   title: Text(
-                    chat['name'] ??
-                        'Unknown User' + chat['department'] ??
-                        'Unknown Department',
+                    '${chat['name'] ?? 'Unknown User'} - ${chat['department'] ?? 'Unknown Department'}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
