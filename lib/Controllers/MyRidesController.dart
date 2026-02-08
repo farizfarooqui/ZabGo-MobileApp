@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:demo/Service/Internet.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../Utils/Utils.dart';
@@ -12,6 +13,8 @@ class MyRidesController extends GetxController {
   var allRideRequests = <Map<String, dynamic>>[].obs;
   var selectedTabIndex = 0.obs; // 0 = Offered, 1 = Joined, 2 = Requests
 
+  late final RealtimeChannel _channel;
+
   @override
   void onInit() {
     super.onInit();
@@ -19,7 +22,22 @@ class MyRidesController extends GetxController {
     listenToRideRequestChanges();
   }
 
+  @override
+  void onClose() {
+    myOfferedRides.clear();
+    myJoinedRides.clear();
+    allRideRequests.clear();
+    supabase.removeChannel(_channel);
+    super.onClose();
+  }
+
   Future<void> _initializeData() async {
+    final isOnline = await InternetService.hasInternet();
+    if (!isOnline) {
+      Utils.showError(
+          'No Internet', 'Please connect to the internet and try again.');
+      return;
+    }
     await Future.wait([
       fetchMyRides(),
       fetchMyJoinedRides(),
@@ -349,12 +367,10 @@ class MyRidesController extends GetxController {
     return allRideRequests.length;
   }
 
-  /// Listen to real-time changes in ride requests and rides
   void listenToRideRequestChanges() {
-    final channel = supabase.channel('my_ride_requests');
+    _channel = supabase.channel('my_ride_requests');
 
-    // Listen to ride request changes
-    channel.onPostgresChanges(
+    _channel.onPostgresChanges(
       event: PostgresChangeEvent.insert,
       schema: 'public',
       table: 'ride_requests',
@@ -364,21 +380,19 @@ class MyRidesController extends GetxController {
       },
     );
 
-    channel.onPostgresChanges(
+    _channel.onPostgresChanges(
       event: PostgresChangeEvent.update,
       schema: 'public',
       table: 'ride_requests',
       callback: (payload) {
         log("Ride request updated");
         fetchAllRideRequests();
-        // Also refresh rides to update seat counts
         fetchMyRides();
         fetchMyJoinedRides();
       },
     );
 
-    // Listen to ride changes (seat bookings)
-    channel.onPostgresChanges(
+    _channel.onPostgresChanges(
       event: PostgresChangeEvent.update,
       schema: 'public',
       table: 'rides',
@@ -388,8 +402,7 @@ class MyRidesController extends GetxController {
         fetchMyJoinedRides();
       },
     );
-
-    channel.subscribe();
+    _channel.subscribe();
   }
 
   /// Refresh all data

@@ -36,13 +36,6 @@ class SearchRideController extends GetxController {
     try {
       isLoading(true);
 
-      // final response = await supabase
-      //     .from('rides')
-      //     .select('*')
-      //     .eq('status', 'active')
-      //     .order('created_at', ascending: false);
-
-
       final now = DateTime.now().toUtc();
       final response = await supabase
           .from('rides')

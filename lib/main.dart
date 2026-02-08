@@ -2,6 +2,7 @@ import 'package:demo/Utils/Constants.dart';
 import 'package:demo/Views/NavBar.dart';
 import 'package:demo/Views/SplashScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -14,6 +15,9 @@ Future<void> main() async {
     anonKey:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJleXNsd3F5dnRoaGViZmJsbnJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk3NDc1NjQsImV4cCI6MjA3NTMyMzU2NH0.FEoTt06L5Rbdc2COBDERZk1FaI2xCr4zHiSJOyy3Hig',
   );
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
   final box = GetStorage();
   final bool isLoggedIn = box.read('isLoggedIn') ?? false;
 

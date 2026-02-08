@@ -173,43 +173,42 @@ class OfferRideScreen extends StatelessWidget {
     int? maxValue, // sirf number fields ke liye
   ]) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: TextField(
-        controller: ctrl,
-        keyboardType: type ?? TextInputType.text,
-        inputFormatters: [
-          // Agar field type number ho to filter aur maxValue lagao
-          if (type == TextInputType.number) ...[
-            FilteringTextInputFormatter.digitsOnly,
-            if (maxValue != null)
-              TextInputFormatter.withFunction((oldValue, newValue) {
-                if (newValue.text.isEmpty) return newValue;
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: TextField(
+          controller: ctrl,
+          keyboardType: type ?? TextInputType.text,
+          inputFormatters: [
+            if (type == TextInputType.number) ...[
+              FilteringTextInputFormatter.digitsOnly,
+              if (maxValue != null)
+                TextInputFormatter.withFunction((oldValue, newValue) {
+                  if (newValue.text.isEmpty) return newValue;
 
-                final value = int.tryParse(newValue.text) ?? 0;
-
-                if (value > maxValue) {
-                  return oldValue; // zyada hua to old value wapis
-                }
-                return newValue;
-              }),
-          ]
-        ],
-        decoration: InputDecoration(
-          labelText: label,
-          filled: true,
-          fillColor: Colors.white,
-          prefixIcon: const Icon(Icons.edit, color: colorSecondary),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey.withOpacity(0.4)),
-            borderRadius: BorderRadius.circular(12),
+                  final value = int.tryParse(newValue.text) ?? 0;
+                  if (value > maxValue) {
+                    return oldValue;
+                  }
+                  return newValue;
+                }),
+            ]
+          ],
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: const TextStyle(color: Colors.grey),
+            floatingLabelStyle: const TextStyle(color: colorSecondary),
+            filled: true,
+            fillColor: Colors.white,
+            prefixIcon: const Icon(Icons.edit, color: colorSecondary),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.grey.withOpacity(0.4)),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
+            ),
           ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
-          ),
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _buildMapPreview({

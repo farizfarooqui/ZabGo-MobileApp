@@ -64,7 +64,6 @@ class ProfileScreen extends StatelessWidget {
                         onPressed: () async {
                           Get.back();
                           await controller.logout();
-                          Get.offAll(() => WelcomeBackScreen());
                         },
                         child: const Text(
                           "Logout",
@@ -84,7 +83,8 @@ class ProfileScreen extends StatelessWidget {
             : controller.currentUser.value?.toJson() ?? {};
 
         if (user.isEmpty) {
-          return const Center(child: SmallLoader(
+          return const Center(
+              child: SmallLoader(
             color: colorSecondary,
           ));
         }

@@ -1,9 +1,13 @@
 import 'dart:developer';
 import 'package:demo/Model/UserModel.dart';
+import 'package:demo/Service/Internet.dart';
+import 'package:demo/Utils/Constants.dart';
+import 'package:demo/Utils/Utils.dart';
+import 'package:demo/Views/WelcomeBackScreen.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../Views/NavBar.dart';
 
 class ProfileController extends GetxController {
   final supabase = Supabase.instance.client;
@@ -54,11 +58,8 @@ class ProfileController extends GetxController {
       final authUser = supabase.auth.currentUser;
       if (authUser == null) return;
 
-      final res = await supabase
-          .from('users')
-          .select()
-          .eq('id', authUser.id)
-          .single();
+      final res =
+          await supabase.from('users').select().eq('id', authUser.id).single();
 
       final user = UserModel.fromJson(res);
       await saveUser(user);
@@ -68,10 +69,23 @@ class ProfileController extends GetxController {
   }
 
   Future<void> logout() async {
+    final isOnline = await InternetService.hasInternet();
+    if (!isOnline) {
+      Utils.showError(
+          'No Internet', 'Please connect to the internet and try again.');
+      return;
+    }
     await supabase.auth.signOut();
     await box.erase();
     currentUser.value = null;
     isLoggedIn(false);
-    Get.offAll(() => const NavBar());
+    Get.deleteAll(force: true);
+    Get.offAll(() => WelcomeBackScreen());
+    Get.snackbar(
+      "Logged Out",
+      "You have been successfully logged out.",
+      backgroundColor: colorSecondary,
+      colorText: Colors.white,
+    );
   }
 }

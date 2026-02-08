@@ -1,4 +1,5 @@
 import 'package:demo/Controllers/OfferRideController.dart';
+import 'package:demo/Utils/Constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -53,9 +54,14 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
               onTap: (tapPos, point) => setState(() => _pickedLocation = point),
             ),
             children: [
+              // TileLayer(
+              //   urlTemplate:
+              //       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+              //   subdomains: const ['a', 'b', 'c'],
+              // ),
               TileLayer(
                 urlTemplate:
-                    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    'https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}{r}.png',
                 subdomains: const ['a', 'b', 'c'],
               ),
               if (_pickedLocation != null)
@@ -75,19 +81,33 @@ class _MapPickerScreenState extends State<MapPickerScreen> {
             left: 20,
             right: 20,
             child: ElevatedButton.icon(
-              icon: const Icon(Icons.check),
-              label: const Text("Set Location"),
+              icon: Icon(
+                Icons.check,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
+              label: Text(
+                "Set Location",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
               onPressed: _pickedLocation == null
                   ? null
                   : () {
-                      final data = LatLngData(
-                          _pickedLocation!.latitude, _pickedLocation!.longitude);
+                      final data = LatLngData(_pickedLocation!.latitude,
+                          _pickedLocation!.longitude);
                       Get.back(result: data);
                     },
               style: ElevatedButton.styleFrom(
+                backgroundColor: colorSecondary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                disabledBackgroundColor: colorSecondary.withOpacity(0.33),
+                elevation: 3,
               ),
             ),
           ),

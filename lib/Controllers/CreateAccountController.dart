@@ -145,6 +145,15 @@ class CreateAccountController extends GetxController {
       await box.write('isLoggedIn', true);
 
       Get.offAll(() => const NavBar());
+    } on AuthApiException catch (e) {
+      if (e.message.contains("User already registered")) {
+        Utils.showError(
+          "Signup Failed",
+          "This student ID is already registered. Please login instead.",
+        );
+      } else {
+        Utils.showError("Signup Failed", e.message);
+      }
     } catch (e) {
       log("SignUp Error: $e");
       Utils.showError("Signup Failed", e.toString());

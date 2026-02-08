@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:demo/Controllers/ProfileContoller.dart';
 import 'package:demo/Model/UserModel.dart';
+import 'package:demo/Service/Internet.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:demo/Utils/Utils.dart';
@@ -40,6 +41,13 @@ class WelcomeBackController extends GetxController {
       return;
     }
 
+    final isOnline = await InternetService.hasInternet();
+    if (!isOnline) {
+      Utils.showError(
+          'No Internet', 'Please connect to the internet and try again.');
+      return;
+    }
+
     try {
       isLoading(true);
 
@@ -72,7 +80,7 @@ class WelcomeBackController extends GetxController {
       log("Fetched user profile: $profileResponse");
 
       // ✅ 3. Save using ProfileController (local storage)
-      final profileController = Get.put(ProfileController(), permanent: true);
+      final profileController = Get.put(ProfileController());
       await profileController.saveUser(UserModel.fromJson(profileResponse));
       await box.write('isLoggedIn', true);
 
@@ -80,7 +88,8 @@ class WelcomeBackController extends GetxController {
       Utils.showSuccess("Welcome Back!", message: "Login successful.");
       Get.offAll(() => const NavBar());
     } on AuthException catch (e) {
-      Utils.showError('Login Failed', e.message);
+      Utils.showError('Login Failed', '');
+      print("AuthException: ${e.message}");
     } catch (e) {
       Utils.showError('Unexpected Error', e.toString());
       log("SignIn Error: $e");

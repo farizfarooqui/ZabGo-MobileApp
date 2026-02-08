@@ -1,5 +1,7 @@
 import 'package:demo/Controllers/ChatController.dart';
 import 'package:demo/Controllers/MyRidesController.dart';
+import 'package:demo/Service/Internet.dart';
+import 'package:demo/Utils/Utils.dart';
 import 'package:demo/Views/RideDetailScreen.dart';
 import 'package:demo/Views/ChatScreen.dart';
 import 'package:demo/Widgets/SmallLoader.dart';
@@ -19,6 +21,10 @@ class MyRidesScreen extends StatelessWidget {
     } catch (_) {
       return dateTime;
     }
+  }
+
+  initState() {
+    Get.find<MyRidesController>().refreshAllData();
   }
 
   @override
@@ -191,10 +197,9 @@ class MyRidesScreen extends StatelessWidget {
       enablePullUp: false,
       onRefresh: _onRefresh,
       header: const WaterDropHeader(
-              waterDropColor: colorSecondary,
-              idleIcon:
-                  Icon(Icons.autorenew_rounded, size: 16, color: Colors.white),
-            ),
+        waterDropColor: colorSecondary,
+        idleIcon: Icon(Icons.autorenew_rounded, size: 16, color: Colors.white),
+      ),
       child: Obx(() {
         if (controller.myOfferedRides.isEmpty) {
           return const Center(
@@ -324,10 +329,9 @@ class MyRidesScreen extends StatelessWidget {
       enablePullUp: false,
       onRefresh: _onRefresh,
       header: const WaterDropHeader(
-              waterDropColor: colorSecondary,
-              idleIcon:
-                  Icon(Icons.autorenew_rounded, size: 16, color: Colors.white),
-            ),
+        waterDropColor: colorSecondary,
+        idleIcon: Icon(Icons.autorenew_rounded, size: 16, color: Colors.white),
+      ),
       child: Obx(() {
         if (controller.myJoinedRides.isEmpty) {
           return const Center(
@@ -420,6 +424,12 @@ class MyRidesScreen extends StatelessWidget {
         RefreshController(initialRefresh: false);
 
     void _onRefresh() async {
+      final isOnline = await InternetService.hasInternet();
+    if (!isOnline) {
+      Utils.showError(
+          'No Internet', 'Please connect to the internet and try again.');
+      return;
+    }
       await controller.fetchAllRideRequests();
       refreshController.refreshCompleted();
     }
@@ -430,10 +440,9 @@ class MyRidesScreen extends StatelessWidget {
       enablePullUp: false,
       onRefresh: _onRefresh,
       header: const WaterDropHeader(
-              waterDropColor: colorSecondary,
-              idleIcon:
-                  Icon(Icons.autorenew_rounded, size: 16, color: Colors.white),
-            ),
+        waterDropColor: colorSecondary,
+        idleIcon: Icon(Icons.autorenew_rounded, size: 16, color: Colors.white),
+      ),
       child: Obx(() {
         if (controller.allRideRequests.isEmpty) {
           return const Center(

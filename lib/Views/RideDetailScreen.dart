@@ -5,7 +5,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:get/get.dart';
 import 'package:demo/Utils/Constants.dart';
 import 'package:demo/Controllers/RideDetailController.dart';
-import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -337,18 +336,19 @@ class RideDetailScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 20),
-
-              // --- Send Request Section ---
               if (!controller.isRideOwner) ...[
+                // Message Input
                 TextField(
                   controller: controller.messageController,
                   maxLines: 3,
                   decoration: InputDecoration(
                     hintText: "Any special requests or information...",
                     hintStyle:
-                        const TextStyle(color: Colors.grey, fontSize: 13),
+                        TextStyle(color: Colors.grey.shade600, fontSize: 13),
                     filled: true,
-                    fillColor: Colors.grey.shade100,
+                    fillColor:
+                        Theme.of(context).inputDecorationTheme.fillColor ??
+                            Colors.grey.shade100,
                     contentPadding: const EdgeInsets.all(14),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -357,51 +357,62 @@ class RideDetailScreen extends StatelessWidget {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                          color: Colors.blueAccent, width: 1.5),
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary,
+                          width: 1.5),
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                // Send Request Button
                 Center(
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: colorSecondary,
+                      backgroundColor: Theme.of(context)
+                          .colorScheme
+                          .secondary, // theme-aware
                       padding: const EdgeInsets.symmetric(
                           horizontal: 38, vertical: 14),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10)),
                       elevation: 4,
                     ),
-                    icon: const Icon(Icons.send, color: Colors.white),
-                    label: const Text(
+                    icon: Icon(Icons.send,
+                        color: Theme.of(context).colorScheme.onSecondary),
+                    label: Text(
                       "Send Seat Request",
                       style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
                     ),
                     onPressed: () async {
                       if (controller.selectedSeats.isEmpty) {
-                        Get.snackbar("No Seat Selected",
-                            "Please select at least one seat before sending request.",
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor: Colors.redAccent.withOpacity(0.8),
-                            colorText: Colors.white);
+                        Get.snackbar(
+                          "No Seat Selected",
+                          "Please select at least one seat before sending request.",
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.redAccent.withOpacity(0.8),
+                          colorText: Colors.white,
+                        );
                         return;
                       }
 
                       if (controller.messageController.text.trim().isEmpty) {
-                        Get.snackbar("Message Required",
-                            "Please type a message before sending request.",
-                            snackPosition: SnackPosition.BOTTOM,
-                            backgroundColor:
-                                Colors.orangeAccent.withOpacity(0.8),
-                            colorText: Colors.white);
+                        Get.snackbar(
+                          "Message Required",
+                          "Please type a message before sending request.",
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.orangeAccent.withOpacity(0.8),
+                          colorText: Colors.white,
+                        );
                         return;
                       }
 
-                      await showDialog<String>(
+                      // Show Confirmation Dialog
+                      final send = await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(
                           shape: RoundedRectangleBorder(
@@ -413,25 +424,40 @@ class RideDetailScreen extends StatelessWidget {
                           ),
                           actions: [
                             TextButton(
-                              onPressed: () => Navigator.pop(context, null),
+                              onPressed: () =>
+                                  Navigator.pop(context, false), // Cancel
                               child: const Text(
                                 "Cancel",
                                 style: TextStyle(color: Colors.grey),
                               ),
                             ),
                             ElevatedButton(
-                              onPressed: () => Navigator.pop(context),
+                              onPressed: () =>
+                                  Navigator.pop(context, true), // Send
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.primary,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 24, vertical: 10),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
                               child: const Text(
                                 "Send",
-                                style: TextStyle(color: colorSecondary),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       );
-
-                      controller
-                          .sendSeatRequest(controller.messageController.text);
+                      if (send == true) {
+                        controller
+                            .sendSeatRequest(controller.messageController.text);
+                      }
                     },
                   ),
                 ),
